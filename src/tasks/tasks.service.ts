@@ -15,28 +15,10 @@ export class TasksService {
         private taskRepository: TaskRepository,
     ) {}
 
-    // getAllTasks(): Task[] {
-    //     return this.tasks;
-    // }
+    async getTasks(filterDto: GetTasksfilterDto): Promise<Task[]> {
+        return await this.taskRepository.getTasks(filterDto);
+    }
 
-    // getTasksWithFilterDto (filterDto: GetTasksfilterDto): Task[] {
-    //     const { status, search} = filterDto;
-
-    //     let tasks = this.getAllTasks();
-
-    //     if (status) {
-    //         tasks = tasks.filter(task =>  task.status === status);
-    //     }
-
-    //     if (search) {
-    //         tasks = tasks.filter( task => 
-    //             task.title.includes(search) ||
-    //             task.description.includes(search),
-    //             );
-    //     }
-    //     return tasks;
-    // }
-    
     /**
      * @param id,
      * @returns promise of Task
@@ -51,52 +33,31 @@ export class TasksService {
         return found;
     }
 
-    // // TODO(mzanda): createa a delete service methode
-    // deleteTask(id: string) {
-    //     const found = this.getTaskById(id);
-    //     this.tasks = this.tasks.filter(task => task.id !== found.id);
-    // }
+    // TODO(mzanda): createa a delete service methode
+    async deleteTask(id: number): Promise<void> {
+        const result = await this.taskRepository.delete(id);
+
+        if (result.affected === 0) {
+            throw new NotFoundException(`Task with ID ${id} not found`);
+        }
+
+    }
 
     async createTask(createTaskDto: CreateTaskDto): Promise<Task> {
-        const { title, description } = createTaskDto;
+        return this.taskRepository.createTask(createTaskDto);
+    }
 
-        const task = new Task();
-
-        task.title = title;
-        task.description = description;
-        task.status = TaskStatus.OPEN;
-
+    /**
+     * Update task with an Id
+     * @param id task id
+     * @param status task status to be updated
+     */
+    async updateTask(id: number, status: TaskStatus): Promise<Task> {
+        const task = await this.getTaskById(id);
+        task.status = status;
         await task.save();
 
         return task;
-
     }
-    // /**
-    //  * @param createTaskDto
-    //  * return @title and @description
-    //  * aftr destructing
-    //  */
-    // createTask(createTaskDto: CreateTaskDto): Task {
-
-    //     const { title, description } = createTaskDto;
-
-    //     const task: Task = {
-    //         id: uuid(),
-    //         title,
-    //         description,
-    //         status: TaskStatus.OPEN,
-    //     };
-
-    //     this.tasks.push(task);
-
-    //     return task;
-    // }
-
-    // updateTask(id: string, status: TaskStatus) {
-    //     const task = this.getTaskById(id);
-
-    //     task.status = status;
-    //     return task;
-    // }
 
 }
